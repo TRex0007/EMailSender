@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="EMailSenderModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="Tasks">
+    <Key>
+      <PropertyRef Name="TasksId" />
+    </Key>
+    <Property Name="TasksId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Mail" Type="text" />
+    <Property Name="QuantityOfUsers" Type="int" />
+    <Property Name="QuantityOfSentMails" Type="int" />
+    <Property Name="Status" Type="nvarchar" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="TasksUsers">
+    <Key>
+      <PropertyRef Name="TasksId" />
+      <PropertyRef Name="UsersId" />
+    </Key>
+    <Property Name="TasksId" Type="int" Nullable="false" />
+    <Property Name="UsersId" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Users">
+    <Key>
+      <PropertyRef Name="UsersId" />
+    </Key>
+    <Property Name="UsersId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" MaxLength="100" Nullable="false" />
+    <Property Name="EMailAddress" Type="nvarchar" MaxLength="150" Nullable="false" />
+    <Property Name="Description" Type="nvarchar" MaxLength="150" />
+    <Property Name="GroupOfRecipients" Type="nvarchar" MaxLength="100" Nullable="false" />
+  </EntityType>
+  <Association Name="FK_TasksUsers_Tasks">
+    <End Role="Tasks" Type="Self.Tasks" Multiplicity="1" />
+    <End Role="TasksUsers" Type="Self.TasksUsers" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Tasks">
+        <PropertyRef Name="TasksId" />
+      </Principal>
+      <Dependent Role="TasksUsers">
+        <PropertyRef Name="UsersId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TasksUsers_Users">
+    <End Role="Users" Type="Self.Users" Multiplicity="1" />
+    <End Role="TasksUsers" Type="Self.TasksUsers" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UsersId" />
+      </Principal>
+      <Dependent Role="TasksUsers">
+        <PropertyRef Name="TasksId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="EMailSenderModelStoreContainer">
+    <EntitySet Name="Tasks" EntityType="Self.Tasks" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="TasksUsers" EntityType="Self.TasksUsers" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_TasksUsers_Tasks" Association="Self.FK_TasksUsers_Tasks">
+      <End Role="Tasks" EntitySet="Tasks" />
+      <End Role="TasksUsers" EntitySet="TasksUsers" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TasksUsers_Users" Association="Self.FK_TasksUsers_Users">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="TasksUsers" EntitySet="TasksUsers" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

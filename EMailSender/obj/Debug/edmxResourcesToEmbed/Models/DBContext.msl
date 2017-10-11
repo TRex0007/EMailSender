@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="EMailSenderModelStoreContainer" CdmEntityContainer="EMailSenderEntities">
+    <EntitySetMapping Name="Tasks">
+      <EntityTypeMapping TypeName="EMailSenderModel.Task">
+        <MappingFragment StoreEntitySet="Tasks">
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="TaskId" ColumnName="TasksId" />
+          <ScalarProperty Name="Mail" ColumnName="Mail" />
+          <ScalarProperty Name="QuantityOfUsers" ColumnName="QuantityOfUsers" />
+          <ScalarProperty Name="QuantityOfSentMails" ColumnName="QuantityOfSentMails" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Users">
+      <EntityTypeMapping TypeName="EMailSenderModel.User">
+        <MappingFragment StoreEntitySet="Users">
+          <ScalarProperty Name="UserId" ColumnName="UsersId" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="EMailAddress" ColumnName="EMailAddress" />
+          <ScalarProperty Name="Description" ColumnName="Description" />
+          <ScalarProperty Name="GroupOfRecipients" ColumnName="GroupOfRecipients" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <AssociationSetMapping Name="TasksUsers" TypeName="EMailSenderModel.TasksUsers" StoreEntitySet="TasksUsers">
+      <EndProperty Name="Tasks">
+        <ScalarProperty Name="TaskId" ColumnName="UsersId" />
+      </EndProperty>
+      <EndProperty Name="Users">
+        <ScalarProperty Name="UserId" ColumnName="TasksId" />
+      </EndProperty>
+    </AssociationSetMapping>
+  </EntityContainerMapping>
+</Mapping>

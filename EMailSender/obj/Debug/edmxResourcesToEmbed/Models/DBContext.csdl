@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="EMailSenderModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Task">
+    <Key>
+      <PropertyRef Name="TaskId" />
+    </Key>
+    <Property Name="TaskId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Mail" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="QuantityOfUsers" Type="Int32" />
+    <Property Name="QuantityOfSentMails" Type="Int32" />
+    <NavigationProperty Name="Users" Relationship="Self.TasksUsers" FromRole="Tasks" ToRole="Users" />
+    <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="UserId" />
+    </Key>
+    <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="EMailAddress" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Description" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+    <Property Name="GroupOfRecipients" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+    <NavigationProperty Name="Tasks" Relationship="Self.TasksUsers" FromRole="Users" ToRole="Tasks" />
+  </EntityType>
+  <Association Name="TasksUsers">
+    <End Role="Tasks" Type="EMailSenderModel.Task" Multiplicity="*" />
+    <End Role="Users" Type="EMailSenderModel.User" Multiplicity="*" />
+  </Association>
+  <EntityContainer Name="EMailSenderEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Tasks" EntityType="EMailSenderModel.Task" />
+    <EntitySet Name="Users" EntityType="EMailSenderModel.User" />
+    <AssociationSet Name="TasksUsers" Association="Self.TasksUsers">
+      <End Role="Tasks" EntitySet="Tasks" />
+      <End Role="Users" EntitySet="Users" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>
