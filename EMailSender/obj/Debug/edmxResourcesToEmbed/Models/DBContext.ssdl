@@ -1,5 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Schema Namespace="EMailSenderModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="SelectedGroupsOfUsers">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+    <Property Name="TasksId" Type="int" Nullable="false" />
+  </EntityType>
   <EntityType Name="Tasks">
     <Key>
       <PropertyRef Name="TasksId" />
@@ -28,6 +36,18 @@
     <Property Name="Description" Type="nvarchar" MaxLength="150" />
     <Property Name="GroupOfRecipients" Type="nvarchar" MaxLength="100" Nullable="false" />
   </EntityType>
+  <Association Name="FK_SelectedGroupsOfUsers_Tasks">
+    <End Role="Tasks" Type="Self.Tasks" Multiplicity="1" />
+    <End Role="SelectedGroupsOfUsers" Type="Self.SelectedGroupsOfUsers" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Tasks">
+        <PropertyRef Name="TasksId" />
+      </Principal>
+      <Dependent Role="SelectedGroupsOfUsers">
+        <PropertyRef Name="TasksId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <Association Name="FK_TasksUsers_Tasks">
     <End Role="Tasks" Type="Self.Tasks" Multiplicity="1" />
     <End Role="TasksUsers" Type="Self.TasksUsers" Multiplicity="*" />
@@ -53,9 +73,14 @@
     </ReferentialConstraint>
   </Association>
   <EntityContainer Name="EMailSenderModelStoreContainer">
+    <EntitySet Name="SelectedGroupsOfUsers" EntityType="Self.SelectedGroupsOfUsers" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Tasks" EntityType="Self.Tasks" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TasksUsers" EntityType="Self.TasksUsers" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_SelectedGroupsOfUsers_Tasks" Association="Self.FK_SelectedGroupsOfUsers_Tasks">
+      <End Role="Tasks" EntitySet="Tasks" />
+      <End Role="SelectedGroupsOfUsers" EntitySet="SelectedGroupsOfUsers" />
+    </AssociationSet>
     <AssociationSet Name="FK_TasksUsers_Tasks" Association="Self.FK_TasksUsers_Tasks">
       <End Role="Tasks" EntitySet="Tasks" />
       <End Role="TasksUsers" EntitySet="TasksUsers" />

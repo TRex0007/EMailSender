@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using EMailSender.Models;
+using EMailSender.Email;
 
 namespace EMailSender.Controllers
 {
@@ -18,17 +19,23 @@ namespace EMailSender.Controllers
 
         public TasksController()
         {
-            GroupOfRecipients = new List<string>() { "Teachers", "Servicemen", "Security", "Students" };
             GroupOfRecipientsSelected = new List<string>();
+            GroupOfRecipients = new List<string>();
+            foreach (var user in db.Users)
+            {
+                if (!GroupOfRecipients.Contains(user.GroupOfRecipients))
+                    GroupOfRecipients.Add(user.GroupOfRecipients);
+            }
+
             ViewBag.GroupOfRecipients = GroupOfRecipients;
         }
-        // GET: Tasks
+
         public ActionResult Index()
         {
             return View(db.Tasks.ToList());
         }
 
-        // GET: Tasks/Details/5
+
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -43,33 +50,68 @@ namespace EMailSender.Controllers
             return View(task);
         }
 
-        // GET: Tasks/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Tasks/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateInput(false)]
-        public ActionResult Create([Bind(Include = "TaskId,Mail,QuantityOfUsers,QuantityOfSentMails")] Task task, string action, IEnumerable<string> GroupOfRecipients)
+        public async System.Threading.Tasks.Task<ActionResult> Create([Bind(Include = "TaskId,Mail,QuantityOfUsers,QuantityOfSentMails")] Task task, string action, IEnumerable<string> GroupOfRecipients)
         {
+
             if (ModelState.IsValid)
             {
+                var users = db.Users;
+
                 foreach (var group in GroupOfRecipients)
                 {
-                    GroupOfRecipientsSelected.Add(group);
+                    task.SelectedGroupsOfUsers.Add(new SelectedGroupsOfUsers { Name = group, TasksId = task.TaskId });
                 }
 
+                foreach (var user in users)
+                {
+                    foreach (var group in GroupOfRecipients)
+                    {
+                        if (user.GroupOfRecipients == group)
+                            task.Users.Add(user);
+                    }
+                }
 
                 if (action == "Save")
                 {
+                    task.QuantityOfUsers = task.Users.Count;
                     task.Status = "stopped";
                     db.Tasks.Add(task);
                     db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                if (action == "Send")
+                {
+                    if (task == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    MailSender sender = new MailSender();
+
+                    var to = task.Users.Select(i => i.EMailAddress).ToList();
+                    var subject = "";
+                    if (!string.IsNullOrEmpty(task.Mail))
+                    {
+                        subject = task.Mail.Substring(0, task.Mail.Length > 100 ? 100 : task.Mail.Length);
+                    }
+
+                    Email.Email email = new Email.Email(subject, to, task.Mail);
+
+                    task.QuantityOfUsers = task.Users.Count;
+                    task.Status = "running";
+                    db.Tasks.Add(task);
+                    db.SaveChanges();
+
+                    await sender.SendEmails(email, task);
+
                     return RedirectToAction("Index");
                 }
             }
@@ -77,7 +119,6 @@ namespace EMailSender.Controllers
             return View(task);
         }
 
-        // GET: Tasks/Edit/5
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -92,27 +133,67 @@ namespace EMailSender.Controllers
             return View(task);
         }
 
-        // POST: Tasks/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "TaskId,Mail,QuantityOfUsers,QuantityOfSentMails")] Task task, string action)
+        public async System.Threading.Tasks.Task<ActionResult> Edit([Bind(Include = "TaskId,Mail,QuantityOfUsers,QuantityOfSentMails")] Task task, string action, IEnumerable<string> GroupOfRecipients)
         {
             if (ModelState.IsValid)
             {
-                if (action == "Save")
+                var users = db.Users;
+
+                task.SelectedGroupsOfUsers.Clear();
+                foreach (var group in GroupOfRecipients)
+                {
+                    task.SelectedGroupsOfUsers.Add(new SelectedGroupsOfUsers { Name = group, TasksId = task.TaskId });
+                }
+
+                foreach (var user in users)
+                {
+                    foreach (var group in GroupOfRecipients)
+                    {
+                        if (user.GroupOfRecipients == group)
+                            task.Users.Add(user);
+                    }
+                }
+
+                if (action != null && action == "Save")
                 {
                     task.Status = "stopped";
                     db.Entry(task).State = EntityState.Modified;
                     db.SaveChanges();
                     return RedirectToAction("Index");
                 }
+                if (action == "Send")
+                {
+                    if (task == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    MailSender sender = new MailSender();
+
+                    var to = task.Users.Select(i => i.EMailAddress).ToList();
+                    var subject = "";
+                    if (!string.IsNullOrEmpty(task.Mail))
+                    {
+                        subject = task.Mail.Substring(0, task.Mail.Length > 100 ? 100 : task.Mail.Length - 1);
+                    }
+
+                    Email.Email email = new Email.Email(subject, to, task.Mail);
+
+                    task.QuantityOfUsers = task.Users.Count;
+                    task.Status = "running";
+                    db.Entry(task).State = EntityState.Modified;
+                    db.SaveChanges();
+
+                    await sender.SendEmails(email, task);
+
+                    return RedirectToAction("Index");
+                }
             }
             return View(task);
         }
 
-        // GET: Tasks/Delete/5
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -127,7 +208,6 @@ namespace EMailSender.Controllers
             return View(task);
         }
 
-        // POST: Tasks/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)

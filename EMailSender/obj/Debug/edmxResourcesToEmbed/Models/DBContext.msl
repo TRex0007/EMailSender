@@ -31,5 +31,14 @@
         <ScalarProperty Name="UserId" ColumnName="TasksId" />
       </EndProperty>
     </AssociationSetMapping>
+    <EntitySetMapping Name="SelectedGroupsOfUsers">
+      <EntityTypeMapping TypeName="EMailSenderModel.SelectedGroupsOfUsers">
+        <MappingFragment StoreEntitySet="SelectedGroupsOfUsers">
+          <ScalarProperty Name="TasksId" ColumnName="TasksId" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
   </EntityContainerMapping>
 </Mapping>

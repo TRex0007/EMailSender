@@ -10,6 +10,7 @@
     <Property Name="QuantityOfSentMails" Type="Int32" />
     <NavigationProperty Name="Users" Relationship="Self.TasksUsers" FromRole="Tasks" ToRole="Users" />
     <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="SelectedGroupsOfUsers" Relationship="EMailSenderModel.FK_SelectedGroupsOfUsers_Tasks" FromRole="Task" ToRole="SelectedGroupsOfUsers" />
   </EntityType>
   <EntityType Name="User">
     <Key>
@@ -33,5 +34,31 @@
       <End Role="Tasks" EntitySet="Tasks" />
       <End Role="Users" EntitySet="Users" />
     </AssociationSet>
+    <EntitySet Name="SelectedGroupsOfUsers" EntityType="EMailSenderModel.SelectedGroupsOfUsers" />
+    <AssociationSet Name="FK_SelectedGroupsOfUsers_Tasks" Association="EMailSenderModel.FK_SelectedGroupsOfUsers_Tasks">
+      <End Role="Task" EntitySet="Tasks" />
+      <End Role="SelectedGroupsOfUsers" EntitySet="SelectedGroupsOfUsers" />
+    </AssociationSet>
   </EntityContainer>
+  <EntityType Name="SelectedGroupsOfUsers">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="true" />
+    <Property Name="TasksId" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="Tasks" Relationship="EMailSenderModel.FK_SelectedGroupsOfUsers_Tasks" FromRole="SelectedGroupsOfUsers" ToRole="Task" />
+  </EntityType>
+  <Association Name="FK_SelectedGroupsOfUsers_Tasks">
+    <End Type="EMailSenderModel.Task" Role="Task" Multiplicity="1" />
+    <End Type="EMailSenderModel.SelectedGroupsOfUsers" Role="SelectedGroupsOfUsers" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Task">
+        <PropertyRef Name="TaskId" />
+      </Principal>
+      <Dependent Role="SelectedGroupsOfUsers">
+        <PropertyRef Name="TasksId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
 </Schema>

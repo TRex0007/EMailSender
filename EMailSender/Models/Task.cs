@@ -18,6 +18,7 @@ namespace EMailSender.Models
         public Task()
         {
             this.Users = new HashSet<User>();
+            this.SelectedGroupsOfUsers = new HashSet<SelectedGroupsOfUsers>();
         }
     
         public int TaskId { get; set; }
@@ -28,5 +29,7 @@ namespace EMailSender.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<User> Users { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SelectedGroupsOfUsers> SelectedGroupsOfUsers { get; set; }
     }
 }

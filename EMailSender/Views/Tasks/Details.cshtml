@@ -18,7 +18,16 @@
         <dd>
             @Html.DisplayFor(model => model.Mail)
         </dd>
-    </dl>
+        <dt>
+            @Html.Label("Group of Recipients")
+        </dt>
+        @foreach (var group in Model.SelectedGroupsOfUsers)
+        {
+            <dd>
+                @Html.DisplayFor(model => group.Name)
+            </dd>
+        }
+        </dl>
 </div>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.TaskId }) |
